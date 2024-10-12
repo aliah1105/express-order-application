@@ -4,8 +4,9 @@ import dotenv from 'dotenv';
 import { AdminRouter, VendorRouter } from './routes/index';
 import mongoose from 'mongoose';
 import { DB_URL } from './config';
+import { connectDb } from './utils/dbConnection';
 
-dotenv.config();
+dotenv.config({ path: __dirname + '.env' });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,16 +18,9 @@ app.use('/admin', AdminRouter)
 app.use('/vendor', VendorRouter);
 
 // db connection
-mongoose.connect(DB_URL)
-    .then(() => {
-        console.log('database connected');
-    })
-    .catch((err) => {
-        console.log('somethig went wrong in connection: ', err);
-    });
 
 
-app.listen(PORT, () => {
-    // console.clear();
+app.listen(PORT, async () => {
     console.log(`app listening on port ${PORT}`);
+    await connectDb()
 });
