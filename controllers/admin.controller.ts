@@ -37,10 +37,49 @@ export const createVendor = async (req: Request, res: Response, next: NextFuncti
             data: vendor
         });
     } catch (error: any) {
-        return res.status(500).json({ "error": error.message });
+        return res.status(500).json({ status: "fail", error: error.message });
     }
 }
 
-export const getVendors = async (req: Request, res: Response, next: NextFunction) => { }
+export const getVendors = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const vendors = await Vendor.find();
+        if (vendors !== null) {
+            return res.status(200).json({
+                status: "success",
+                data: vendors
+            });
+        }
+        return res.status(404).json({
+            message: "No vendors found"
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            status: "fail",
+            message: error.message,
+        });
+    }
+}
 
-export const getVendorById = async (req: Request, res: Response, next: NextFunction) => { }
+export const getVendorById = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    try {
+        const vendor = await Vendor.findById(userId);
+
+        if (vendor !== null) {
+            return res.status(200).json({
+                status: "success",
+                data: vendor
+            });
+        }
+        return res.status(404).json({
+            status: "fail",
+            message: "Vendor does not exist",
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            status: "fail",
+            message: error.message,
+        });
+    }
+}
