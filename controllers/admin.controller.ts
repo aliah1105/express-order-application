@@ -5,7 +5,7 @@ import { generateSalt, hashPassword } from '../utils';
 
 export const findVendor = async (id: string | undefined, email?: string) => {
     if (email) {
-        return await Vendor.findOne({ email: email });
+        return await Vendor.findOne({ email });
     }
     else {
         return await Vendor.findById(id);
