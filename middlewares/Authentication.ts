@@ -6,8 +6,10 @@ export const authentication = async (req: Request, res: Response, next: NextFunc
     if (validate) {
         next();
     }
-    return res.status(401).json({
-        status: "fail",
-        message: "you dont have access to this route"
-    })
+    else {
+        return res.status(401).json({
+            status: "fail",
+            message: "you dont have access to this route"
+        })
+    }
 }

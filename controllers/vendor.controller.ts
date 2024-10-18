@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { findVendor } from './admin.controller';
 import { LoginVendorInput } from '../dto';
 import { generateSignature, validatePassword } from '../utils';
+import { Vendor } from '../models/vendor.model';
 
 export const loginVendor = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = <LoginVendorInput>req.body;
@@ -46,6 +47,12 @@ export const getVendorProfile = async (req: Request, res: Response, next: NextFu
                 data: existUser
             });
         }
+        else {
+            return res.status(404).json({
+                status: "fail",
+                message: "vendor does not exist"
+            });
+        }
     } catch (error: any) {
         return res.status(500).json({
             status: "error",
@@ -56,16 +63,71 @@ export const getVendorProfile = async (req: Request, res: Response, next: NextFu
 
 export const updateVendorProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { name, phone, address, foodType } = req.body;
+        const user = req.user;
+        if (user) {
+            const existingVendor = await findVendor(user._id);
+            if (existingVendor !== null) {
+                existingVendor.name = name;
+                existingVendor.phone = phone;
+                existingVendor.address = address;
+                existingVendor.foodType = foodType;
 
-    } catch (error) {
-
+                const changedResult = await existingVendor.save();
+                return res.json({
+                    status: "success", 
+                    "message": "vendor updated successfully",
+                    vendor: changedResult
+                });
+            }
+            return res.json({
+                status: "success",
+                data: existingVendor
+            });
+        }
+        else {
+            return res.status(404).json({
+                status: "fail",
+                message: "vendor does not exist"
+            });
+        }
+    } catch (error: any) {
+        return res.status(500).json({
+            status: "error",
+            error: error.message
+        });
     }
 }
 
 export const updateVendorService = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
-    } catch (error) {
-
+        const user = req.user;
+        if (user) {
+            const existingVendor = await findVendor(user._id);
+            if (existingVendor !== null) {
+                existingVendor.serviceAvailable = !existingVendor.serviceAvailable;
+                const changedResult = await existingVendor.save();
+                return res.json({
+                    status: "success", 
+                    "message": "vendor service updated successfully",
+                    vendor: changedResult
+                });
+            }
+            return res.json({
+                status: "success",
+                data: existingVendor
+            });
+        }
+        else {
+            return res.status(404).json({
+                status: "fail",
+                message: "vendor does not exist"
+            });
+        }
+    } catch (error: any) {
+        return res.status(500).json({
+            status: "error",
+            error: error.message
+        });
     }
 }
